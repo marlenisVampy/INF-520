@@ -1,0 +1,66 @@
+
+--PRACTICA 
+--BASE  DE DATOS NEPTUNO    
+
+USE NEPTUNO;
+ 
+--1.  Mostrar todos los Pedidos que se encuentren en el rango 10300 hasta 10305.  
+	SELECT * FROM PEDIDOS WHERE IDPEDIDO BETWEEN 10300 AND 10305;
+ 
+--2.  Mostrar todos los empleados cuya antiguedad de empleo sea menor a 15 años. 
+--Utilice funciones de fecha. 
+
+	SELECT * FROM EMPLEADOS
+	WHERE (DATEDIFF(YEAR, FECHACONTRATACIÓN, GETDATE())) > 15;
+
+--3.  Mostrar todos los pedidos que fueron emitidos en el año 1994 y el mes de agosto 
+--y en los dias pares.Utilice el campo FechaPedido.
+
+	SELECT * FROM PEDIDOS 
+	WHERE DATEPART(YEAR, FECHAPEDIDO) = 1996 --NO HAY DEL 1994
+		  AND MONTH(FECHAPEDIDO) = 8 
+		  AND (DAY(FECHAPEDIDO)%2 = 0);
+
+--4.  Mostrar todos los pedidos y la fecha completa  con el siguiente formato Ciudad 
+--jueves 2 de agosto de 1996. Utilice el campo FechaPedido y CiudadDestinatario. 
+ 
+	--EN SQL SERVER LA SEMANA EMPIEZA EL LUNES
+	
+	SELECT IDPEDIDO,  FECHAPEDIDO, CIUDADDESTINATARIO + 
+		CASE
+			WHEN DATEPART(DW, FECHAPEDIDO) = 1 THEN 'LUNES'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 2 THEN 'MARTES'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 3 THEN 'MIERCOLES'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 4 THEN 'JUEVES'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 5 THEN 'VIERNES'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 6 THEN 'SABADO'
+			WHEN DATEPART(DW, FECHAPEDIDO) = 7 THEN 'DOMINGO'
+		END + ' ' + CAST(DATEPART(DW, FECHAPEDIDO) AS VARCHAR) +
+		' de ' + DATENAME(MONTH, FECHAPEDIDO) + ' de ' + 
+		CAST(DATEPART(YY, FECHAPEDIDO) AS VARCHAR)
+		FROM PEDIDOS;
+ 
+--5.  Mostrar todos los Productos vendidos del pedido 10260. 
+ 
+	SELECT PED.IDPEDIDO, PROD.IDPRODUCTO, PROD.NOMBREPRODUCTO 'PRODUCTO', 
+	DET.PRECIOUNIDAD, DET.CANTIDAD, (DET.PRECIOUNIDAD * DET.CANTIDAD) 'TOTAL' 
+	FROM PRODUCTOS PROD
+	INNER JOIN [DETALLES DE PEDIDOS] DET
+		ON DET.IDPRODUCTO = PROD.IDPRODUCTO
+	INNER JOIN PEDIDOS PED
+		ON PED.IDPEDIDO = DET.IDPEDIDO
+	WHERE DET.IDPEDIDO = 10260;
+	
+--6.  Mostrar todos los clientes y su cantidad de pedidos vendidos. 
+	SELECT CLI.IDCLIENTE, CLI.NOMBRECOMPAÑÍA, CLI.NOMBRECONTACTO, 
+	COUNT(PED.IDPEDIDO) 'CANTIDAD PEDIDOS' FROM CLIENTES CLI
+	INNER JOIN PEDIDOS PED
+		ON PED.IDCLIENTE = CLI.IDCLIENTE
+	GROUP BY CLI.IDCLIENTE, CLI.NOMBRECOMPAÑÍA, CLI.NOMBRECONTACTO
+	ORDER BY CLI.IDCLIENTE ASC;
+	
+
+ 
+--7.  Mostrar todos los empleados cuya cantidad de pedidos vendidos sea mayor a 50. 
+ 
+--8.  Mostrar la cantidad de productos vendidos que fueron vendidos en el año 1994.
